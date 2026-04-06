@@ -2070,7 +2070,7 @@ SDispatchResult CKeybindManager::focusWindow(std::string regexp) {
         changeworkspace(PWORKSPACE->getConfigName());
     }
 
-    Desktop::focusState()->fullWindowFocus(PWINDOW, Desktop::FOCUS_REASON_KEYBIND, nullptr, false);
+    Desktop::focusState()->fullWindowFocus(PWINDOW, Desktop::FOCUS_REASON_DISPATCH_FOCUSWINDOW, nullptr, false);
 
     PWINDOW->warpCursor();
 
