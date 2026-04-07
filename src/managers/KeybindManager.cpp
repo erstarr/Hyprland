@@ -2634,7 +2634,7 @@ void CKeybindManager::moveWindowIntoGroup(PHLWINDOW pWindow, PHLWINDOW pWindowIn
 
     pWindowInDirection->m_group->setCurrent(pWindow);
     pWindow->updateWindowDecos();
-    Desktop::focusState()->fullWindowFocus(pWindow, Desktop::FOCUS_REASON_KEYBIND);
+    Desktop::focusState()->fullWindowFocus(pWindow, Desktop::FOCUS_REASON_DISPATCH_MOVEINTOGROUP);
     pWindow->warpCursor();
 
     g_pEventManager->postEvent(SHyprIPCEvent{"moveintogroup", std::format("{:x}", rc<uintptr_t>(pWindow.get()))});
