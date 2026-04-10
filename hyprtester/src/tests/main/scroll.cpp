@@ -226,6 +226,60 @@ static bool testWindowRule() {
     return true;
 }
 
+static void testScrollingViewBehaviourDispatchFocusWindowFollowFocusFalse() {
+
+    /*
+     focuswindow DOES NOT move the scrolling view when follow_focus = 0
+     ---------------------------------------------------------------------------------
+    */
+
+    // ensure variables are correctly set for the test
+    OK(getFromSocket("/keyword scrolling:follow_focus 0"));
+
+    if (!Tests::spawnKitty("a")) {
+        NLog::log("{}Failed to spawn kitty with win class `a`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    OK(getFromSocket("/dispatch layoutmsg colresize 0.8"));
+
+    if (!Tests::spawnKitty("b")) {
+        NLog::log("{}Failed to spawn kitty with class `b`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    OK(getFromSocket("/dispatch focuswindow class:a"));
+
+    // if the view does not move, we expect the x coordinate of the window of class "a" to be negative, as it would be to the left of the viewport
+    const std::string posA  = Tests::getWindowAttribute(getFromSocket("/activewindow"), "at:");
+    const int         posAx = std::stoi(posA.substr(4, posA.find(',') - 4));
+
+    if (posAx < 0) {
+        NLog::log("{}Passed: {}Expected the x coordinate of window of class \"a\" to be < 0, got {}.", Colors::GREEN, Colors::RESET, posAx);
+        TESTS_PASSED++;
+    } else {
+        NLog::log("{}Failed: {}Expected the x coordinate of window of class \"a\" to be < 0, got {}.", Colors::RED, Colors::RESET, posAx);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // clean up
+
+    // to revert the changes made to config
+    NLog::log("{}Restoring config state", Colors::YELLOW);
+    OK(getFromSocket("/keyword scrolling:follow_focus 1"));
+
+    // kill all windows
+    NLog::log("{}Killing all windows", Colors::YELLOW);
+    Tests::killAllWindows();
+    EXPECT(Tests::windowCount(), 0);
+}
+
 static bool test() {
     NLog::log("{}Testing Scroll layout", Colors::GREEN);
 
@@ -244,6 +298,10 @@ static bool test() {
     // test
     NLog::log("{}Testing swapcol wrap", Colors::GREEN);
     testSwapcolWrapping();
+
+    // test
+    NLog::log("{}Testing scrolling view behaviour: focuswindow dispatch SHOULD NOT move scrolling view when follow_focus = false", Colors::GREEN);
+    testScrollingViewBehaviourDispatchFocusWindowFollowFocusFalse();
 
     testWindowRule();
 
