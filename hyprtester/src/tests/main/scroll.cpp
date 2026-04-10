@@ -928,6 +928,70 @@ static void testScrollingViewBehaviourMoveWindowInGroupFollowFocusTrue() {
 
 
 
+static void testScrollingViewBehaviourHyprctlKeyword() {
+
+    /*
+     dispatching `hyprctl keyword` while focused on a window should not fit that window into view, regardless of follow_focus
+     ------------------------------------------------------------------------------------------------------------------------
+    */
+
+    // ensure variables are correctly set for the test - this is to avoid unwanted view shifts when setting up the windows
+    OK(getFromSocket("/keyword scrolling:follow_focus 0"));
+
+    if (!Tests::spawnKitty("a")) {
+        NLog::log("{}Failed to spawn kitty with win class `a`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    OK(getFromSocket("/dispatch layoutmsg colresize 0.8"));
+
+    if (!Tests::spawnKitty("b")) {
+        NLog::log("{}Failed to spawn kitty with win class `b`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // focus class:a - this does not move scrolling view when follow_focus = 0
+    OK(getFromSocket("/dispatch focuswindow class:a"));
+
+    // dispatch the `keyword` command
+    OK(getFromSocket("/dispatch focuswindow class:a"));
+
+    // If the scrolling view did not move, class:a window's x coordinate for its `at:` value should be <0
+
+    const std::string currentWindowPos  = Tests::getWindowAttribute(getFromSocket("/activewindow"), "at:");
+    const std::string currentWindowPosX = currentWindowPos.substr(4, currentWindowPos.find(',') - 4);
+
+    // test pass
+    if (std::stoi(currentWindowPosX) < 0) {
+        NLog ::log("{}Passed: {}window of class 'a' has negative x coordinates for its position: {}", Colors ::GREEN, Colors::RESET, currentWindowPosX);
+        TESTS_PASSED++;
+    }
+    // test fail
+    else {
+        NLog::log("{}Failed: {}window of class 'a' does not have negative x coordinates for its position: {}", Colors::RED, Colors::RESET, currentWindowPosX);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // clean up
+
+    // to revert the changes made to config
+    NLog::log("{}Restoring config state", Colors::YELLOW);
+    OK(getFromSocket("/keyword scrolling:follow_focus 1"));
+
+    // kill all windows
+    NLog::log("{}Killing all windows", Colors::YELLOW);
+    Tests::killAllWindows();
+    EXPECT(Tests::windowCount(), 0);
+}
+
+
+
 static bool test() {
     NLog::log("{}Testing Scroll layout", Colors::GREEN);
 
@@ -1002,6 +1066,14 @@ static bool test() {
     // test
     NLog::log("{}Testing scrolling view behaviour: moving a window in a group SHOULD move scrolling view if follow_focus = true", Colors::GREEN);
     testScrollingViewBehaviourMoveWindowInGroupFollowFocusTrue();
+
+
+
+
+    // test
+    NLog::log("{}Testing scrolling view behaviour: hyprctl keyword commands should not move scrolling view", Colors::GREEN);
+    testScrollingViewBehaviourHyprctlKeyword();
+
 
 
 
