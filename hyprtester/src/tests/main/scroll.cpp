@@ -280,6 +280,55 @@ static void testScrollingViewBehaviourDispatchFocusWindowFollowFocusFalse() {
     EXPECT(Tests::windowCount(), 0);
 }
 
+
+static void testScrollingViewBehaviourDispatchFocusWindowFollowFocustrue() {
+
+    /*
+     focuswindow DOES move the view when follow_focus != 0
+     --------------------------------------------------------------------
+    */
+
+    if (!Tests::spawnKitty("a")) {
+        NLog::log("{}Failed to spawn kitty with win class `a`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    OK(getFromSocket("/dispatch layoutmsg colresize 0.8"));
+
+    if (!Tests::spawnKitty("b")) {
+        NLog::log("{}Failed to spawn kitty with class `b`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    OK(getFromSocket("/dispatch focuswindow class:a"));
+
+    // If the view does not move, we expect the x coordinate of the window of class "a" to be negative, as it would be to the left of the viewport.
+    // If it is not, the view moved, which is what we expect to happen.
+    const std::string posA  = Tests::getWindowAttribute(getFromSocket("/activewindow"), "at:");
+    const int         posAx = std::stoi(posA.substr(4, posA.find(',') - 4));
+
+    if (posAx < 0) {
+        NLog::log("{}Failed: {}Expected the x coordinate of window of class \"a\" to be >= 0, got {}.", Colors::RED, Colors::RESET, posAx);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    } else {
+        NLog::log("{}Passed: {}Expected the x coordinate of window of class \"a\" to be >= 0, got {}.", Colors::GREEN, Colors::RESET, posAx);
+        TESTS_PASSED++;
+    }
+
+    // clean up
+
+    // kill all windows
+    NLog::log("{}Killing all windows", Colors::YELLOW);
+    Tests::killAllWindows();
+    EXPECT(Tests::windowCount(), 0);
+}
+
 static bool test() {
     NLog::log("{}Testing Scroll layout", Colors::GREEN);
 
@@ -298,12 +347,19 @@ static bool test() {
     // test
     NLog::log("{}Testing swapcol wrap", Colors::GREEN);
     testSwapcolWrapping();
+    
+    testWindowRule();
 
     // test
     NLog::log("{}Testing scrolling view behaviour: focuswindow dispatch SHOULD NOT move scrolling view when follow_focus = false", Colors::GREEN);
     testScrollingViewBehaviourDispatchFocusWindowFollowFocusFalse();
 
-    testWindowRule();
+
+    // test
+    NLog::log("{}Testing scrolling view behaviour: focuswindow dispatch SHOULD move scrolling view when follow_focus = true", Colors::GREEN);
+    testScrollingViewBehaviourDispatchFocusWindowFollowFocustrue();
+
+
 
     // clean up
     NLog::log("Cleaning up", Colors::YELLOW);
