@@ -412,6 +412,89 @@ static void testScrollingViewBehaviourFocusFallback() {
 
 
 
+static void testScrollingViewBehaviourFocusFallbackWithGroups() {
+
+    // same idea as testScrollingViewBehaviourFocusFallback, but with window of class "a" being grouped.
+
+    // ensure variables are correctly set for the test
+
+    // to correctly set up windows for the test
+    OK(getFromSocket("/keyword scrolling:follow_focus 0"));
+    // only one tiled window will be grouped for the test
+    OK(getFromSocket("/keyword group:auto_group false"));
+
+    if (!Tests::spawnKitty("a")) {
+        NLog::log("{}Failed to spawn kitty with win class `a`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // make it a grouped. There need not be any other windows in the group for this test
+    OK(getFromSocket("/dispatch togglegroup"));
+    OK(getFromSocket("/dispatch layoutmsg colresize 0.8"));
+
+    if (!Tests::spawnKitty("b")) {
+        NLog::log("{}Failed to spawn kitty with class `b`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    if (!Tests::spawnKitty("c")) {
+        NLog::log("{}Failed to spawn kitty with class `c`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // make it float - the view now mush have shifted to fit window class:b
+    OK(getFromSocket("/dispatch setfloating active"));
+
+    // establish focus history
+    OK(getFromSocket("/dispatch focuswindow class:c"));
+    OK(getFromSocket("/dispatch focuswindow class:a"));
+    OK(getFromSocket("/dispatch focuswindow class:c"));
+
+    // kill the floating window
+    OK(getFromSocket("/dispatch killwindow class:c"));
+    Tests::waitUntilWindowsN(2);
+
+    // The focus now must have fallen back to tiled window of class "a".
+
+    // If the view did not move, we expect currently focused window's (class:a) to have "at: " x coordinat value <0 (must be left of the viewport)
+
+    const std::string currentWindowPos  = Tests::getWindowAttribute(getFromSocket("/activewindow"), "at:");
+    const std::string currentWindowPosX = currentWindowPos.substr(4, currentWindowPos.find(',') - 4);
+
+    // test pass
+    if (std::stoi(currentWindowPosX) < 0) {
+        NLog ::log("{}Passed: {}Expected the x coordinate of window of class \"a\" to be < 0, got {}.", Colors ::GREEN, Colors::RESET, currentWindowPosX);
+        TESTS_PASSED++;
+    }
+    // test fail
+    else {
+        NLog::log("{}Failed: {}Expected the x coordinate of window of class \"a\" to be < 0, got {}.", Colors::RED, Colors::RESET, currentWindowPosX);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // clean up
+
+    // to revert the changes made to config
+    NLog::log("{}Restoring config state", Colors::YELLOW);
+    OK(getFromSocket("/keyword scrolling:follow_focus 1"));
+    OK(getFromSocket("/keyword group:auto_group true"));
+
+    // kill all windows
+    NLog::log("{}Killing all windows", Colors::YELLOW);
+    Tests::killAllWindows();
+    EXPECT(Tests::windowCount(), 0);
+}
+
+
+
 static bool test() {
     NLog::log("{}Testing Scroll layout", Colors::GREEN);
 
@@ -447,6 +530,11 @@ static bool test() {
     // test
     NLog::log("{}Testing scrolling view behaviour: focus fallback from floating window to a tiled window should not move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourFocusFallback();
+
+
+    // test
+    NLog::log("{}Testing scrolling view behaviour: focus fallback from floating window to a grouped tiled should not move scrolling view", Colors::GREEN);
+    testScrollingViewBehaviourFocusFallbackWithGroups();
 
 
 
