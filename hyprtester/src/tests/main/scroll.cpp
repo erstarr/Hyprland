@@ -280,7 +280,6 @@ static void testScrollingViewBehaviourDispatchFocusWindowFollowFocusFalse() {
     EXPECT(Tests::windowCount(), 0);
 }
 
-
 static void testScrollingViewBehaviourDispatchFocusWindowFollowFocustrue() {
 
     /*
@@ -328,9 +327,6 @@ static void testScrollingViewBehaviourDispatchFocusWindowFollowFocustrue() {
     Tests::killAllWindows();
     EXPECT(Tests::windowCount(), 0);
 }
-
-
-
 
 static void testScrollingViewBehaviourFocusFallback() {
 
@@ -409,8 +405,6 @@ static void testScrollingViewBehaviourFocusFallback() {
     Tests::killAllWindows();
     EXPECT(Tests::windowCount(), 0);
 }
-
-
 
 static void testScrollingViewBehaviourFocusFallbackWithGroups() {
 
@@ -493,7 +487,6 @@ static void testScrollingViewBehaviourFocusFallbackWithGroups() {
     EXPECT(Tests::windowCount(), 0);
 }
 
-
 static void testScrollingViewBehaviourWorkspaceChange() {
     /*
      When you change to a scrolling workspace, the focused window in that workspace must not be pulled into view, regardless of follow_focus
@@ -555,9 +548,6 @@ static void testScrollingViewBehaviourWorkspaceChange() {
     Tests::killAllWindows();
     EXPECT(Tests::windowCount(), 0);
 }
-
-
-
 
 static void testScrollingViewBehaviourSpecialWorkspaceChange() {
 
@@ -628,7 +618,6 @@ static void testScrollingViewBehaviourSpecialWorkspaceChange() {
     EXPECT(Tests::windowCount(), 0);
 }
 
-
 static void testScrollingViewBehaviourSpecialToSpecialWorkspaceChange() {
 
     /*
@@ -697,8 +686,6 @@ static void testScrollingViewBehaviourSpecialToSpecialWorkspaceChange() {
     Tests::killAllWindows();
     EXPECT(Tests::windowCount(), 0);
 }
-
-
 
 static void testScrollingViewBehaviourCloseWindowInGroup() {
 
@@ -778,8 +765,6 @@ static void testScrollingViewBehaviourCloseWindowInGroup() {
     EXPECT(Tests::windowCount(), 0);
 }
 
-
-
 static void testScrollingViewBehaviourMoveWindowInGroupFollowFocusFalse() {
 
     /*
@@ -851,8 +836,6 @@ static void testScrollingViewBehaviourMoveWindowInGroupFollowFocusFalse() {
     Tests::killAllWindows();
     EXPECT(Tests::windowCount(), 0);
 }
-
-
 
 static void testScrollingViewBehaviourMoveWindowInGroupFollowFocusTrue() {
 
@@ -926,8 +909,6 @@ static void testScrollingViewBehaviourMoveWindowInGroupFollowFocusTrue() {
     EXPECT(Tests::windowCount(), 0);
 }
 
-
-
 static void testScrollingViewBehaviourHyprctlKeyword() {
 
     /*
@@ -989,7 +970,6 @@ static void testScrollingViewBehaviourHyprctlKeyword() {
     Tests::killAllWindows();
     EXPECT(Tests::windowCount(), 0);
 }
-
 
 static void testScrollingViewBehaviourNewLayer() {
 
@@ -1063,10 +1043,6 @@ static void testScrollingViewBehaviourNewLayer() {
     EXPECT(Tests::layerCount(), 0);
 }
 
-
-
-
-
 static void testScrollingViewBehaviourMaximise() {
 
     /*
@@ -1131,9 +1107,6 @@ static void testScrollingViewBehaviourMaximise() {
     Tests::killAllWindows();
     EXPECT(Tests::windowCount(), 0);
 }
-
-
-
 
 static void testScrollingViewBehaviourFullscreen() {
 
@@ -1201,7 +1174,6 @@ static void testScrollingViewBehaviourFullscreen() {
     EXPECT(Tests::windowCount(), 0);
 }
 
-
 static bool test() {
     NLog::log("{}Testing Scroll layout", Colors::GREEN);
 
@@ -1220,88 +1192,64 @@ static bool test() {
     // test
     NLog::log("{}Testing swapcol wrap", Colors::GREEN);
     testSwapcolWrapping();
-    
+
     testWindowRule();
 
     // test
     NLog::log("{}Testing scrolling view behaviour: focuswindow dispatch SHOULD NOT move scrolling view when follow_focus = false", Colors::GREEN);
     testScrollingViewBehaviourDispatchFocusWindowFollowFocusFalse();
 
-
     // test
     NLog::log("{}Testing scrolling view behaviour: focuswindow dispatch SHOULD move scrolling view when follow_focus = true", Colors::GREEN);
     testScrollingViewBehaviourDispatchFocusWindowFollowFocustrue();
-
-
 
     // test
     NLog::log("{}Testing scrolling view behaviour: focus fallback from floating window to a tiled window should not move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourFocusFallback();
 
-
     // test
     NLog::log("{}Testing scrolling view behaviour: focus fallback from floating window to a grouped tiled should not move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourFocusFallbackWithGroups();
-
 
     // test
     NLog::log("{}Testing scrolling view behaviour: changing to a scrolling workspace should not move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourWorkspaceChange();
 
-
     // test
     NLog::log("{}Testing scrolling view behaviour: changing to a special scrolling workspace from a normal workspace should not move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourSpecialWorkspaceChange();
-
 
     // test
     NLog::log("{}Testing scrolling view behaviour: changing to a special scrolling workspace from another special workspace should not move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourSpecialToSpecialWorkspaceChange();
 
-
-
     // test
     NLog::log("{}Testing scrolling view behaviour: closing a window in a group (> 1 window in group) should not move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourCloseWindowInGroup();
-
-
-
 
     // test
     NLog::log("{}Testing scrolling view behaviour: moving a window in a group SHOULD NOT move scrolling view if follow_focus = 0", Colors::GREEN);
     testScrollingViewBehaviourMoveWindowInGroupFollowFocusFalse();
 
-
-
     // test
     NLog::log("{}Testing scrolling view behaviour: moving a window in a group SHOULD move scrolling view if follow_focus = true", Colors::GREEN);
     testScrollingViewBehaviourMoveWindowInGroupFollowFocusTrue();
-
-
-
 
     // test
     NLog::log("{}Testing scrolling view behaviour: hyprctl keyword commands should not move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourHyprctlKeyword();
 
-
-
     // test
     NLog::log("{}Testing scrolling view behaviour: new program occupying another layer shouldn't move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourNewLayer();
-
 
     // test
     NLog::log("{}Testing scrolling view behaviour: maximising and then unmaximising a window shouldn't move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourMaximise();
 
-
-
     // test
     NLog::log("{}Testing scrolling view behaviour: fullscreening and then unfullscreening a window shouldn't move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourFullscreen();
-
-
 
     // clean up
     NLog::log("Cleaning up", Colors::YELLOW);
