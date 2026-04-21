@@ -381,10 +381,10 @@ void CKeybindManager::switchToWindow(PHLWINDOW PWINDOWTOCHANGETO, bool forceFSCy
     g_pInputManager->unconstrainMouse();
 
     if (PLASTWINDOW && PLASTWINDOW->m_workspace == PWINDOWTOCHANGETO->m_workspace && PLASTWINDOW->isFullscreen())
-        Desktop::focusState()->fullWindowFocus(PWINDOWTOCHANGETO, Desktop::FOCUS_REASON_KEYBIND, nullptr, forceFSCycle);
+        Desktop::focusState()->fullWindowFocus(PWINDOWTOCHANGETO, Desktop::FOCUS_REASON_SWITCH_TO_WINDOW_HARD, nullptr, forceFSCycle);
     else {
         updateRelativeCursorCoords();
-        Desktop::focusState()->fullWindowFocus(PWINDOWTOCHANGETO, Desktop::FOCUS_REASON_KEYBIND, nullptr, forceFSCycle);
+        Desktop::focusState()->fullWindowFocus(PWINDOWTOCHANGETO, Desktop::FOCUS_REASON_SWITCH_TO_WINDOW_SOFT, nullptr, forceFSCycle);
         PWINDOWTOCHANGETO->warpCursor();
 
         // Move mouse focus to the new window if required by current follow_mouse and warp modes
