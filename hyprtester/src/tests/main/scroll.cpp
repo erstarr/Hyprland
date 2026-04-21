@@ -1174,6 +1174,117 @@ static void testScrollingViewBehaviourFullscreen() {
     EXPECT(Tests::windowCount(), 0);
 }
 
+static void testScrollingViewBehaviourMoveFocusFollowFocusFalse() {
+
+    /*
+     dispatching movefocus when follow_focus = false should not cause scrolling view to move
+     ---------------------------------------------------------------------------------------
+    */
+
+    // ensure variables are correctly set for the test
+    OK(getFromSocket("/keyword scrolling:follow_focus 0"));
+
+    if (!Tests::spawnKitty("a")) {
+        NLog::log("{}Failed to spawn kitty with win class `a`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    OK(getFromSocket("/dispatch layoutmsg colresize 0.8"));
+
+    if (!Tests::spawnKitty("b")) {
+        NLog::log("{}Failed to spawn kitty with win class `b`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // we expect that after dispatching this, scrolling view must not have moved
+    OK(getFromSocket("/dispatch movefocus l"));
+
+    // If the scrolling view did not move, class:a window's x coordinate for its `at:` value should be < 0.
+
+    const std::string currentWindowPos  = Tests::getWindowAttribute(getFromSocket("/activewindow"), "at:");
+    const std::string currentWindowPosX = currentWindowPos.substr(4, currentWindowPos.find(',') - 4);
+
+    // test pass
+    if (std::stoi(currentWindowPosX) < 0) {
+        NLog ::log("{}Passed: {}window of class 'a' has negative x coordinates for its position: {}", Colors ::GREEN, Colors::RESET, currentWindowPosX);
+        TESTS_PASSED++;
+    }
+    // test fail
+    else {
+        NLog::log("{}Failed: {}window of class 'a' does not have negative x coordinates for its position: {}", Colors::RED, Colors::RESET, currentWindowPosX);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // clean up
+
+    // to revert the changes made to config
+    NLog::log("{}Restoring config state", Colors::YELLOW);
+    OK(getFromSocket("/keyword scrolling:follow_focus 1"));
+
+    // kill all windows
+    NLog::log("{}Killing all windows", Colors::YELLOW);
+    Tests::killAllWindows();
+    EXPECT(Tests::windowCount(), 0);
+}
+
+static void testScrollingViewBehaviourMoveFocusFollowFocusTrue() {
+
+    /*
+     dispatching movefocus when follow_focus = true should cause scrolling view to move
+     ----------------------------------------------------------------------------------
+    */
+
+    if (!Tests::spawnKitty("a")) {
+        NLog::log("{}Failed to spawn kitty with win class `a`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    OK(getFromSocket("/dispatch layoutmsg colresize 0.8"));
+
+    if (!Tests::spawnKitty("b")) {
+        NLog::log("{}Failed to spawn kitty with win class `b`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // we expect that after dispatching this, scrolling view must have moved since follow_focus = true
+    OK(getFromSocket("/dispatch movefocus l"));
+
+    // If the scrolling view moved, class:a window's x coordinate for its `at:` value should be >= 0
+
+    const std::string currentWindowPos  = Tests::getWindowAttribute(getFromSocket("/activewindow"), "at:");
+    const std::string currentWindowPosX = currentWindowPos.substr(4, currentWindowPos.find(',') - 4);
+
+    // test fail
+    if (std::stoi(currentWindowPosX) < 0) {
+        NLog::log("{}Failed: {}window of class 'a' does not have x coordinates >= 0 for its position: {}", Colors::RED, Colors::RESET, currentWindowPosX);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+    // test pass
+    else {
+        NLog ::log("{}Passed: {}window of class 'a' has x coordinates >= 0 for its position: {}", Colors ::GREEN, Colors::RESET, currentWindowPosX);
+        TESTS_PASSED++;
+    }
+
+    // clean up
+
+    // kill all windows
+    NLog::log("{}Killing all windows", Colors::YELLOW);
+    Tests::killAllWindows();
+    EXPECT(Tests::windowCount(), 0);
+}
+
 static bool test() {
     NLog::log("{}Testing Scroll layout", Colors::GREEN);
 
@@ -1250,6 +1361,14 @@ static bool test() {
     // test
     NLog::log("{}Testing scrolling view behaviour: fullscreening and then unfullscreening a window shouldn't move scrolling view", Colors::GREEN);
     testScrollingViewBehaviourFullscreen();
+
+    // test
+    NLog::log("{}Testing scrolling view behaviour: movefocus does not cause scrolling view to move if follow_focus = false", Colors::GREEN);
+    testScrollingViewBehaviourMoveFocusFollowFocusFalse();
+
+    // test
+    NLog::log("{}Testing scrolling view behaviour: movefocus does cause scrolling view to move if follow_focus = true", Colors::GREEN);
+    testScrollingViewBehaviourMoveFocusFollowFocusTrue();
 
     // clean up
     NLog::log("Cleaning up", Colors::YELLOW);
