@@ -813,12 +813,12 @@ static void testScrollingViewBehaviourMoveWindowInGroupFollowFocusFalse() {
 
     // test pass
     if (std::stoi(currentWindowPosX) < 0) {
-        NLog ::log("{}Passed: {}window of class 'a' has negative x coordinates for its position: {}", Colors ::GREEN, Colors::RESET, currentWindowPosX);
+        NLog ::log("{}Passed: {}window of class 'b' has negative x coordinates for its position: {}", Colors ::GREEN, Colors::RESET, currentWindowPosX);
         TESTS_PASSED++;
     }
     // test fail
     else {
-        NLog::log("{}Failed: {}window of class 'a' does not have negative x coordinates for its position: {}", Colors::RED, Colors::RESET, currentWindowPosX);
+        NLog::log("{}Failed: {}window of class 'b' does not have negative x coordinates for its position: {}", Colors::RED, Colors::RESET, currentWindowPosX);
         ++TESTS_FAILED;
         ret = 1;
         return;
@@ -885,7 +885,7 @@ static void testScrollingViewBehaviourMoveWindowInGroupFollowFocusTrue() {
     // test fail
     if (std::stoi(currentWindowPosX) < 0) {
 
-        NLog::log("{}window of class 'a' does not have x coordinates >= 0 for its position: {}", Colors::RED, currentWindowPosX);
+        NLog::log("{}window of class 'b' does not have x coordinates >= 0 for its position: {}", Colors::RED, currentWindowPosX);
         ++TESTS_FAILED;
         ret = 1;
         return;
@@ -893,7 +893,7 @@ static void testScrollingViewBehaviourMoveWindowInGroupFollowFocusTrue() {
     }
     // test pass
     else {
-        NLog ::log("{}Passed: {}window of class 'a' has x coordinates >= 0 for its position: {}", Colors ::GREEN, Colors::RESET, currentWindowPosX);
+        NLog ::log("{}Passed: {}window of class 'b' has x coordinates >= 0 for its position: {}", Colors ::GREEN, Colors::RESET, currentWindowPosX);
         TESTS_PASSED++;
     }
 
@@ -1285,6 +1285,162 @@ static void testScrollingViewBehaviourMoveFocusFollowFocusTrue() {
     EXPECT(Tests::windowCount(), 0);
 }
 
+static void testScrollingViewBehaviourMoveFocusInGroupFollowFocusFalse() {
+
+    /*
+     When movefocus is dispatched within groups to move focus from one group member to another, scrolling view must not move if follow_focus = false
+     -----------------------------------------------------------------------------------------------------------------------------------------------
+    */
+
+    // ensure variables are correctly set for the test
+
+    // necessary to make sure movefocus first cycles through tabs in a group
+    OK(getFromSocket("/keyword binds:movefocus_cycles_groupfirst true"));
+    OK(getFromSocket("/keyword group:auto_group false"));
+    OK(getFromSocket("/keyword scrolling:follow_focus 0"));
+
+    if (!Tests::spawnKitty("a")) {
+        NLog::log("{}Failed to spawn kitty with win class `a`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    OK(getFromSocket("/dispatch layoutmsg colresize 0.8"));
+    OK(getFromSocket("/dispatch togglegroup"));
+
+    if (!Tests::spawnKitty("b")) {
+        NLog::log("{}Failed to spawn kitty with win class `b`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    if (!Tests::spawnKitty("c")) {
+        NLog::log("{}Failed to spawn kitty with win class `c`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // focus class:b. This does not cause scrolling view to move when follow_focus = false
+    OK(getFromSocket("/dispatch focuswindow class:b"));
+
+    // move it into the group where class:a is. This does not cause scrolling view to move when follow_focus = false
+    OK(getFromSocket("/dispatch moveintogroup l"));
+
+    // we move from one window of a group to another (from class:b to class:a) via movefocus
+    OK(getFromSocket("/dispatch movefocus l"));
+
+    // the focus now should still be on class:a window. If the scrolling view did not move, its x coordinate for its `at:` value should be < 0
+
+    const std::string currentWindowPos  = Tests::getWindowAttribute(getFromSocket("/activewindow"), "at:");
+    const std::string currentWindowPosX = currentWindowPos.substr(4, currentWindowPos.find(',') - 4);
+
+    // test pass
+    if (std::stoi(currentWindowPosX) < 0) {
+        NLog ::log("{}Passed: {}window of class 'a' has negative x coordinates for its position: {}", Colors ::GREEN, Colors::RESET, currentWindowPosX);
+        TESTS_PASSED++;
+    }
+    // test fail
+    else {
+        NLog::log("{}Failed: {}window of class 'a' does not have negative x coordinates for its position: {}", Colors::RED, Colors::RESET, currentWindowPosX);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // clean up
+
+    // to revert the changes made to config
+    NLog::log("{}Restoring config state", Colors::YELLOW);
+    OK(getFromSocket("/keyword binds:movefocus_cycles_groupfirst false"));
+    OK(getFromSocket("/keyword group:auto_group true"));
+    OK(getFromSocket("/keyword scrolling:follow_focus 1"));
+
+    // kill all windows
+    NLog::log("{}Killing all windows", Colors::YELLOW);
+    Tests::killAllWindows();
+    EXPECT(Tests::windowCount(), 0);
+}
+
+static void testScrollingViewBehaviourMoveFocusInGroupFollowFocusTrue() {
+
+    /*
+     When movefocus is dispatched within groups to move focus from one group member to another, scrolling view must move if follow_focus = true
+     ------------------------------------------------------------------------------------------------------------------------------------------
+    */
+
+    // ensure variables are correctly set for the test
+
+    // necessary to make sure movefocus first cycles through tabs in a group
+    OK(getFromSocket("/keyword binds:movefocus_cycles_groupfirst true"));
+    OK(getFromSocket("/keyword group:auto_group false"));
+
+    if (!Tests::spawnKitty("a")) {
+        NLog::log("{}Failed to spawn kitty with win class `a`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    OK(getFromSocket("/dispatch layoutmsg colresize 0.8"));
+    OK(getFromSocket("/dispatch togglegroup"));
+
+    if (!Tests::spawnKitty("b")) {
+        NLog::log("{}Failed to spawn kitty with win class `b`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    if (!Tests::spawnKitty("c")) {
+        NLog::log("{}Failed to spawn kitty with win class `c`", Colors::RED);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+
+    // focus class:b. This does not cause scrolling view to move when follow_focus = false
+    OK(getFromSocket("/dispatch focuswindow class:b"));
+
+    // move it into the group where class:a is. This does not cause scrolling view to move when follow_focus = false
+    OK(getFromSocket("/dispatch moveintogroup l"));
+
+    // we move from one window of a group to another (from class:b to class:a) via movefocus
+    OK(getFromSocket("/dispatch movefocus l"));
+
+    // the focus now should still be on class:a window. If the scrolling view moved, its x coordinate for its `at:` value should be >= 0
+
+    const std::string currentWindowPos  = Tests::getWindowAttribute(getFromSocket("/activewindow"), "at:");
+    const std::string currentWindowPosX = currentWindowPos.substr(4, currentWindowPos.find(',') - 4);
+
+    // test fail
+    if (std::stoi(currentWindowPosX) < 0) {
+        NLog::log("{}Failed: {}window of class 'a' does not have x coordinates >= 0 for its position: {}", Colors::RED, Colors::RESET, currentWindowPosX);
+        ++TESTS_FAILED;
+        ret = 1;
+        return;
+    }
+    // test pass
+    else {
+        NLog ::log("{}Passed: {}window of class 'a' has x coordinates >= 0 for its position: {}", Colors ::GREEN, Colors::RESET, currentWindowPosX);
+        TESTS_PASSED++;
+    }
+
+    // clean up
+
+    // to revert the changes made to config
+    NLog::log("{}Restoring config state", Colors::YELLOW);
+    OK(getFromSocket("/keyword binds:movefocus_cycles_groupfirst false"));
+    OK(getFromSocket("/keyword group:auto_group true"));
+
+    // kill all windows
+    NLog::log("{}Killing all windows", Colors::YELLOW);
+    Tests::killAllWindows();
+    EXPECT(Tests::windowCount(), 0);
+}
+
 static bool test() {
     NLog::log("{}Testing Scroll layout", Colors::GREEN);
 
@@ -1369,6 +1525,14 @@ static bool test() {
     // test
     NLog::log("{}Testing scrolling view behaviour: movefocus does cause scrolling view to move if follow_focus = true", Colors::GREEN);
     testScrollingViewBehaviourMoveFocusFollowFocusTrue();
+
+    // test
+    NLog::log("{}Testing scrolling view behaviour: movefocus within groups does not cause scrolling view to move if follow_focus = false", Colors::GREEN);
+    testScrollingViewBehaviourMoveFocusInGroupFollowFocusFalse();
+
+    // test
+    NLog::log("{}Testing scrolling view behaviour: movefocus within groups does causes scrolling view to move if follow_focus = true", Colors::GREEN);
+    testScrollingViewBehaviourMoveFocusInGroupFollowFocusTrue();
 
     // clean up
     NLog::log("Cleaning up", Colors::YELLOW);
