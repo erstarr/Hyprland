@@ -9,6 +9,7 @@
 #include "../../../desktop/rule/Engine.hpp"
 
 #include "../../shared/monitor/MonitorRuleManager.hpp"
+#include "../../../event/EventBus.hpp"
 
 using namespace Config;
 using namespace Config::Supplementary;
@@ -83,6 +84,7 @@ void CPropRefresher::scheduleRefresh(PropRefreshBits prop) {
 
             m_scheduled    = false;
             m_propsTripped = 0;
+            Event::bus()->m_events.prop.refresh.emit();
         });
 
         m_scheduled = true;

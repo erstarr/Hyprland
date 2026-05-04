@@ -140,6 +140,12 @@ namespace Event {
                 Event<const std::string&> submap;
             } keybinds;
 
+
+            struct {
+                Event<> refresh;
+            } prop;
+
+
         } m_events;
     };
 

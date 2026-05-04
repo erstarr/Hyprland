@@ -13,6 +13,7 @@
 ---| "monitor.focused"
 ---| "monitor.layout_changed"
 ---| "monitor.removed"
+---| "prop.refresh"
 ---| "screenshare.state"
 ---| "window.active"
 ---| "window.class"

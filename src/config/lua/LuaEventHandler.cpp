@@ -150,6 +150,8 @@ CLuaEventHandler::CLuaEventHandler(lua_State* L) : m_lua(L) {
         });
     }));
 
+    m_listeners.push_back(bus()->m_events.prop.refresh.listen([this] { dispatch("prop.refresh", 0, [] {}); }));
+
     m_listeners.push_back(bus()->m_events.start.listen([this]() { dispatch("hyprland.start", 0, [] {}); }));
     m_listeners.push_back(bus()->m_events.exit.listen([this]() { dispatch("hyprland.shutdown", 0, [] {}); }));
 }
@@ -227,6 +229,7 @@ const std::unordered_set<std::string>& CLuaEventHandler::knownEvents() {
         "workspace.removed",
         "workspace.move_to_monitor",
         "config.reloaded",
+        "prop.refresh",
         "keybinds.submap",
         "screenshare.state",
         "hyprland.start",
