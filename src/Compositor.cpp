@@ -2275,11 +2275,17 @@ void CCompositor::setWindowFullscreenState(const PHLWINDOW PWINDOW, Desktop::Vie
     const auto FULLSCREEN_REQUEST_RESULT = g_layoutManager->fullscreenRequestForTarget(PWINDOW->layoutTarget(), OLD_EFFECTIVE_MODE, NEW_EFFECTIVE_MODE);
     const bool LAYOUT_HANDLED_FULLSCREEN = FULLSCREEN_REQUEST_RESULT == Layout::FULLSCREEN_REQUEST_HANDLED_BY_LAYOUT;
 
-    if (LAYOUT_HANDLED_FULLSCREEN) {
-        PWORKSPACE->m_fullscreenMode      = FSMODE_NONE;
-        PWORKSPACE->m_hasFullscreenWindow = false;
-    } else
-        PWINDOW->m_fullscreenState.internal = state.internal;
+    
+    // if (LAYOUT_HANDLED_FULLSCREEN) {
+    //     PWORKSPACE->m_fullscreenMode      = FSMODE_NONE;
+    //     PWORKSPACE->m_hasFullscreenWindow = false;
+    // } else
+    //     PWINDOW->m_fullscreenState.internal = state.internal;
+
+    // Update internal and client fullscreen_state for window. They must be set correctly regardless of the fullscreen handler of the window
+    PWINDOW->m_fullscreenState.internal = state.internal;
+    PWINDOW->m_fullscreenState.client = state.client;
+
 
     g_pEventManager->postEvent(SHyprIPCEvent{.event = "fullscreen", .data = std::to_string(sc<int>(NEW_EFFECTIVE_MODE) != FSMODE_NONE)});
     Event::bus()->m_events.window.fullscreen.emit(PWINDOW);
