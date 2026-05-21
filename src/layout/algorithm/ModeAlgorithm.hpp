@@ -54,10 +54,6 @@ namespace Layout {
         // optional: allow algorithms to own fullscreen semantics for a target.
         virtual eFullscreenRequestResult requestFullscreen(const SFullscreenRequest& request);
 
-        // optional: expose an algorithm-owned fullscreen target and whether it is monitor-exclusive.
-        virtual SP<ITarget> layoutFullscreenTarget() const;
-        virtual bool        layoutFullscreenCoversMonitor() const;
-
         // Impl'd here: focal point for dir
         virtual std::optional<Vector2D> focalPointForDir(SP<ITarget> t, Math::eDirection dir);
 

@@ -111,8 +111,6 @@ namespace Layout::Tiled {
         virtual void                     moveTargetInDirection(SP<ITarget> t, Math::eDirection dir, bool silent);
 
         virtual eFullscreenRequestResult requestFullscreen(const SFullscreenRequest& request);
-        virtual SP<ITarget>              layoutFullscreenTarget() const;
-        virtual bool                     layoutFullscreenCoversMonitor() const;
 
         void                             moveTape(float delta);
         void                             moveTapeNormalized(double delta);

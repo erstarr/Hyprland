@@ -2255,6 +2255,8 @@ void CCompositor::setWindowFullscreenState(const PHLWINDOW PWINDOW, Desktop::Vie
         return;
     }
 
+    // Above is shared behaviour between Default and Layout handled fullscreens
+
     // "Effective mode" is the fullscreen mode according to which a window is rendered.
     // For fullscreen modes `FSMODE_NONE` (0), `FSMODE_MAXIMIZED` (1), and `FSMODE_FULLSCREEN` (2),
     // the effective mode is the same as the fullscreen mode;
@@ -2269,6 +2271,7 @@ void CCompositor::setWindowFullscreenState(const PHLWINDOW PWINDOW, Desktop::Vie
 
     PWORKSPACE->setNoMembersAboveFullscreen();
 
+    // TODO: Will return FULLSCREEN_REQUEST_FAILED if FS request failed. Add graceful failiure of fullscreen event
     const auto FULLSCREEN_REQUEST_RESULT = g_layoutManager->fullscreenRequestForTarget(PWINDOW->layoutTarget(), OLD_EFFECTIVE_MODE, NEW_EFFECTIVE_MODE);
     const bool LAYOUT_HANDLED_FULLSCREEN = FULLSCREEN_REQUEST_RESULT == Layout::FULLSCREEN_REQUEST_HANDLED_BY_LAYOUT;
 

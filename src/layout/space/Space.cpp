@@ -153,16 +153,16 @@ void CSpace::recalculate(eRecalculateReason reason) {
         m_algorithm->recalculate(reason);
 }
 
-eFullscreenRequestResult CSpace::setFullscreen(SP<ITarget> t, eFullscreenMode currentEffectiveMode, eFullscreenMode mode) {
-    if (!t)
+eFullscreenRequestResult CSpace::setFullscreen(SP<ITarget> target, eFullscreenMode currentEffectiveMode, eFullscreenMode mode) {
+    if (!target)
         return FULLSCREEN_REQUEST_DEFAULT;
 
-    const auto REQUEST_RESULT = m_algorithm ? m_algorithm->requestFullscreen(t, currentEffectiveMode, mode) : FULLSCREEN_REQUEST_DEFAULT;
+    const auto REQUEST_RESULT = m_algorithm ? m_algorithm->requestFullscreen(target, currentEffectiveMode, mode) : FULLSCREEN_REQUEST_DEFAULT;
 
-    t->setLayoutManagedFullscreen(REQUEST_RESULT == FULLSCREEN_REQUEST_HANDLED_BY_LAYOUT &&
+    target->setLayoutManagedFullscreen(REQUEST_RESULT == FULLSCREEN_REQUEST_HANDLED_BY_LAYOUT &&
                                   (mode == FSMODE_FULLSCREEN || mode == FSMODE_MAXIMIZED)); // ERSTARR -> set maximise window as layoutmanagedFS
     if (REQUEST_RESULT != FULLSCREEN_REQUEST_HANDLED_BY_LAYOUT)
-        t->setFullscreenMode(mode);
+        target->setFullscreenMode(mode);
 
     if (REQUEST_RESULT == FULLSCREEN_REQUEST_HANDLED_BY_LAYOUT) {
         if (const auto WORKSPACE = workspace()) {
@@ -171,8 +171,8 @@ eFullscreenRequestResult CSpace::setFullscreen(SP<ITarget> t, eFullscreenMode cu
         }
     }
 
-    if (mode == FSMODE_NONE && m_algorithm && t->floating())
-        m_algorithm->recenter(t);
+    if (mode == FSMODE_NONE && m_algorithm && target->floating())
+        m_algorithm->recenter(target);
 
     recalculate(REQUEST_RESULT == FULLSCREEN_REQUEST_DEFAULT ? RECALCULATE_REASON_TOGGLE_DEFAULT_HANDLED_FULLSCREEN : RECALCULATE_REASON_TOGGLE_LAYOUT_HANDLED_FULLSCREEN);
 

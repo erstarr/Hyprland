@@ -1087,38 +1087,6 @@ eFullscreenRequestResult CScrollingAlgorithm::requestFullscreen(const SFullscree
     return FULLSCREEN_REQUEST_DEFAULT;
 }
 
-SP<ITarget> CScrollingAlgorithm::layoutFullscreenTarget() const {
-    SP<SScrollingTargetData> fallback;
-
-    for (const auto& COL : m_scrollingData->columns) {
-        for (const auto& TDATA : COL->targetDatas) {
-            if (!isFullscreenTarget(TDATA))
-                continue;
-
-            if (!fallback)
-                fallback = TDATA;
-
-            if (fullscreenColumnCoversMonitor(TDATA->column.lock()))
-                return TDATA->target.lock();
-        }
-    }
-
-    return fallback ? fallback->target.lock() : nullptr;
-}
-
-bool CScrollingAlgorithm::layoutFullscreenCoversMonitor() const {
-    for (const auto& COL : m_scrollingData->columns) {
-        for (const auto& TDATA : COL->targetDatas) {
-            if (!isFullscreenTarget(TDATA))
-                continue;
-
-            if (fullscreenColumnCoversMonitor(TDATA->column.lock()))
-                return true;
-        }
-    }
-
-    return false;
-}
 
 SP<SScrollingTargetData> CScrollingAlgorithm::fullscreenTargetDataForColumn(SP<SColumnData> col) const {
     if (!col)

@@ -98,7 +98,7 @@ eFullscreenRequestResult CLayoutManager::fullscreenRequestForTarget(SP<ITarget> 
     if (target && target->space())
         return target->space()->setFullscreen(target, currentEffectiveMode, effectiveMode);
 
-    return FULLSCREEN_REQUEST_DEFAULT;
+    return FULLSCREEN_REQUEST_FAILED;
 }
 
 void CLayoutManager::switchTargets(SP<ITarget> a, SP<ITarget> b, bool preserveFocus) {

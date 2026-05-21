@@ -779,7 +779,7 @@ bool CWindow::isBlockedByFullscreen() const {
         return false;
 
     const auto ALGORITHM             = m_workspace->m_space ? m_workspace->m_space->algorithm() : nullptr;
-    const bool HAS_LAYOUT_FULLSCREEN = ALGORITHM && ALGORITHM->layoutFullscreenCoversMonitor();
+    const bool HAS_LAYOUT_FULLSCREEN = ALGORITHM && ALGORITHM->layoutFullscreenCoversMonitor();  // ERSTARR: layoutFullscreenCoversMonitor gone, adapt
 
     if (!m_workspace->m_hasFullscreenWindow && !HAS_LAYOUT_FULLSCREEN)
         return false;

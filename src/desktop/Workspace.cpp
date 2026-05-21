@@ -421,7 +421,7 @@ PHLWINDOW CWorkspace::getFullscreenWindow(bool includeLayoutHandledFullscreen) {
 bool CWorkspace::hasFullscreen() {
     if (m_hasFullscreenWindow)
         return true;
-    return m_space && m_space->algorithm() && m_space->algorithm()->layoutFullscreenCoversMonitor();
+    return m_space && m_space->algorithm() && m_space->algorithm()->layoutFullscreenCoversMonitor(); // ERSTARR: layoutFullscreenCoversMonitor gone, adapt
 }
 
 bool CWorkspace::isVisible() {

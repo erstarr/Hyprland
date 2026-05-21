@@ -2309,29 +2309,30 @@ bool CMonitor::inFullscreenMode() {
     // Check special workspace first since it renders on top of regular workspaces
     if (m_activeSpecialWorkspace &&
         ((m_activeSpecialWorkspace->m_hasFullscreenWindow && m_activeSpecialWorkspace->m_fullscreenMode == FSMODE_FULLSCREEN) ||
-         (m_activeSpecialWorkspace->m_space && m_activeSpecialWorkspace->m_space->algorithm() && m_activeSpecialWorkspace->m_space->algorithm()->layoutFullscreenCoversMonitor())))
+         (m_activeSpecialWorkspace->m_space && m_activeSpecialWorkspace->m_space->algorithm() && m_activeSpecialWorkspace->m_space->algorithm()->layoutFullscreenCoversMonitor())))  // ERSTARR: layoutFullscreenCoversMonitor gone, adapt
         return true;
     return m_activeWorkspace &&
         ((m_activeWorkspace->m_hasFullscreenWindow && m_activeWorkspace->m_fullscreenMode == FSMODE_FULLSCREEN) ||
-         (m_activeWorkspace->m_space && m_activeWorkspace->m_space->algorithm() && m_activeWorkspace->m_space->algorithm()->layoutFullscreenCoversMonitor()));
+         (m_activeWorkspace->m_space && m_activeWorkspace->m_space->algorithm() && m_activeWorkspace->m_space->algorithm()->layoutFullscreenCoversMonitor()));  // ERSTARR: layoutFullscreenCoversMonitor gone, adapt
 }
 
+// ERSTARR: refactor, make it cleaner
 PHLWINDOW CMonitor::getFullscreenWindow() {
     // Check special workspace first since it renders on top of regular workspaces
     if (m_activeSpecialWorkspace && m_activeSpecialWorkspace->m_hasFullscreenWindow && m_activeSpecialWorkspace->m_fullscreenMode == FSMODE_FULLSCREEN)
         return m_activeSpecialWorkspace->getFullscreenWindow();
 
     if (m_activeSpecialWorkspace && m_activeSpecialWorkspace->m_space && m_activeSpecialWorkspace->m_space->algorithm() &&
-        m_activeSpecialWorkspace->m_space->algorithm()->layoutFullscreenCoversMonitor()) {
-        const auto TARGET = m_activeSpecialWorkspace->m_space->algorithm()->layoutFullscreenTarget();
+        m_activeSpecialWorkspace->m_space->algorithm()->layoutFullscreenCoversMonitor()) {  // ERSTARR: layoutFullscreenCoversMonitor gone, adapt
+        const auto TARGET = m_activeSpecialWorkspace->m_space->algorithm()->layoutFullscreenTarget(); // ERSTARR: layoutFullscreenTarget gone, redo logic
         return TARGET ? TARGET->window() : nullptr;
     }
 
     if (m_activeWorkspace && m_activeWorkspace->m_hasFullscreenWindow && m_activeWorkspace->m_fullscreenMode == FSMODE_FULLSCREEN)
         return m_activeWorkspace->getFullscreenWindow();
 
-    if (m_activeWorkspace && m_activeWorkspace->m_space && m_activeWorkspace->m_space->algorithm() && m_activeWorkspace->m_space->algorithm()->layoutFullscreenCoversMonitor()) {
-        const auto TARGET = m_activeWorkspace->m_space->algorithm()->layoutFullscreenTarget();
+    if (m_activeWorkspace && m_activeWorkspace->m_space && m_activeWorkspace->m_space->algorithm() && m_activeWorkspace->m_space->algorithm()->layoutFullscreenCoversMonitor()) {  // ERSTARR: layoutFullscreenCoversMonitor gone, adapt
+        const auto TARGET = m_activeWorkspace->m_space->algorithm()->layoutFullscreenTarget(); // ERSTARR: layoutFullscreenTarget gone, redo logic
         return TARGET ? TARGET->window() : nullptr;
     }
 
