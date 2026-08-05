@@ -886,6 +886,8 @@ TEST_CASE(monocleFullscreenMoveFsWindowsIntoWorkspace) {
 
     // Shared test among all default handled FS
 
+    // Testing with a window already in the target workspace even if it's not FS, because internally this causes FS cycle in some of the below changes so that must be tested
+
     // follow = true
 
     // Moving to normal workspace
