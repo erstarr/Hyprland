@@ -5,6 +5,43 @@
 
 #include <format>
 
+
+// get the block from hyprctl clients where a class is located
+static std::string getClientBlock(const std::string& clients, const std::string& cls) {
+
+    // lambda for finding the next block with `Window * ->`
+    const auto findNextBlockHeader = [&](const std::string& s, size_t pos) -> size_t {
+        const auto NPOS = std::string::npos;
+        while (pos != NPOS) {
+            pos = s.find("Window ", pos);
+            if (pos == NPOS)
+                return NPOS;
+            size_t lineEnd  = s.find('\n', pos);
+            size_t arrowPos = s.find(" ->", pos);
+            if (arrowPos != NPOS && arrowPos < lineEnd)
+                return pos;
+            pos = (lineEnd != NPOS) ? lineEnd + 1 : NPOS;
+        }
+        return NPOS;
+    };
+
+    const std::string CLASS_TARGET = std::format("class: {}\n", cls);
+
+    // block by block till you find the class within a block
+    size_t blockStart = findNextBlockHeader(clients, 0);
+    while (blockStart != std::string::npos) {
+        size_t      blockEnd = findNextBlockHeader(clients, blockStart + 1);
+        std::string block    = clients.substr(blockStart, blockEnd == std::string::npos ? std::string::npos : blockEnd - blockStart);
+
+        if (block.contains(CLASS_TARGET))
+            return block;
+
+        blockStart = blockEnd;
+    }
+
+    return "";
+}
+
 TEST_CASE(dwindleFloatClamp) {
     for (auto const& win : {"a", "b", "c"}) {
         if (!Tests::spawnKitty(win)) {
@@ -843,6 +880,61 @@ TEST_CASE(dwindleFullscreenNonInterference) {
         EXPECT(Tests::getAttribute(getFromSocket("/activewindow"), "size"), greenSize);
     }
 }
+
+
+TEST_CASE(monocleFullscreenMoveFsWindowsIntoWorkspace) {
+
+    // Shared test among all default handled FS
+
+    // follow = true
+
+    // Moving to normal workspace
+
+    // Moving a normal window into a workspace with an FS window
+
+
+    // Moving an already FS window into a workspace without an FS window
+
+    // on_focus_under_fullscreen = 0 - Expect the moved window to be below the currently FS window (focus kept on moved window)
+
+    // on_focus_under_fullscreen = 1 - Expect the moved window to take over FS from the moved-workspace FS window (focus kept on moved window)
+
+    // on_focus_under_fullscreen = 2 - Expect the moved-workspace FS window to be unFSed when the non-FS window is moved (focus kept on moved window)
+
+
+
+    // Moving an already FS window into a workspace with an FS window
+
+
+    // on_focus_under_fullscreen = 0 - Expect the moved FS window to be unFSed and moved under the current FS window in that workspace
+
+    // on_focus_under_fullscreen = 1 - Expect the moved FS window to take over
+
+    // on_focus_under_fullscreen = 2 - Expect the moved FS window AND the already-present FS window to be unFSed when moved
+
+
+
+
+    // Moving an already FS window into a workspace without an FS window
+
+    // on_focus_under_fullscreen = 0 - Expect the moved FS window to be be the current FS window in the moved workspace
+
+    // on_focus_under_fullscreen = 1 - Expect the moved FS window to be be the current FS window in the moved workspace
+
+    // on_focus_under_fullscreen = 2 - Expect the moved FS window to be be the current FS window in the moved workspace
+
+
+
+
+
+    // follow = false - same idea as all the above, but move it silently first then switch to workspace to check results
+
+
+
+
+}
+
+
 
 TEST_CASE(defaultHandledFsfocusInDirection) {
 

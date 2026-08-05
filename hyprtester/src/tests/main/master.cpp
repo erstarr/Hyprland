@@ -12,6 +12,43 @@
 #include <thread>
 #include "tests.hpp"
 
+
+// get the block from hyprctl clients where a class is located
+static std::string getClientBlock(const std::string& clients, const std::string& cls) {
+
+    // lambda for finding the next block with `Window * ->`
+    const auto findNextBlockHeader = [&](const std::string& s, size_t pos) -> size_t {
+        const auto NPOS = std::string::npos;
+        while (pos != NPOS) {
+            pos = s.find("Window ", pos);
+            if (pos == NPOS)
+                return NPOS;
+            size_t lineEnd  = s.find('\n', pos);
+            size_t arrowPos = s.find(" ->", pos);
+            if (arrowPos != NPOS && arrowPos < lineEnd)
+                return pos;
+            pos = (lineEnd != NPOS) ? lineEnd + 1 : NPOS;
+        }
+        return NPOS;
+    };
+
+    const std::string CLASS_TARGET = std::format("class: {}\n", cls);
+
+    // block by block till you find the class within a block
+    size_t blockStart = findNextBlockHeader(clients, 0);
+    while (blockStart != std::string::npos) {
+        size_t      blockEnd = findNextBlockHeader(clients, blockStart + 1);
+        std::string block    = clients.substr(blockStart, blockEnd == std::string::npos ? std::string::npos : blockEnd - blockStart);
+
+        if (block.contains(CLASS_TARGET))
+            return block;
+
+        blockStart = blockEnd;
+    }
+
+    return "";
+}
+
 TEST_CASE(focusMasterPrevious) {
     OK(getFromSocket("r/eval hl.config({ general = { layout = 'master' } })"));
 
