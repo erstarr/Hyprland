@@ -4,6 +4,7 @@
 #include "tests.hpp"
 
 #include <format>
+#include <string_view>
 
 
 // get the block from hyprctl clients where a class is located
@@ -882,15 +883,52 @@ TEST_CASE(dwindleFullscreenNonInterference) {
 }
 
 
-TEST_CASE(monocleFullscreenMoveFsWindowsIntoWorkspace) {
+TEST_CASE(dwindleFullscreenMoveFsWindowsIntoWorkspace) {
 
     // Shared test among all default handled FS
 
-    // Testing with a window already in the target workspace even if it's not FS, because internally this causes FS cycle in some of the below changes so that must be tested
+    /*
+      Testing with a window already in the target workspace even if it's not FS, because internally this causes FS cycle in some of the below changes so that must be tested
+
+      Target workspace and the source workspace shall both be the layout we are testing. Testing all combinations is not feasible or necessary
+    */
+
+    OK(getFromSocket("r/eval hl.config({ general = { layout = 'dwindle' } })"));
+
+
+    const auto moveWindowToWorkspace = [&](const std::string_view workspace, bool fullscreen, bool maximised){
+
+        if (fullscreen && maximised)
+            FAIL_TEST("Illegal call of lambda");
+
+        
+        // handle FSing the window here
+
+    };
+
+    const auto revertToTestConfiguration_moveToNormal = [&](){
+
+        Tests::killAllWindows();
+        Tests::waitUntilWindowsN(0);
+
+        OK(getFromSocket("r/dispatch hl.dsp.window.move({ workspace = '2' , follow = true })"));
+
+        SPAWN_KITTY("presentWindow");
+
+
+        OK(getFromSocket("r/dispatch hl.dsp.window.move({ workspace = '1' , follow = true })"));
+
+        SPAWN_KITTY("traveller");
+
+    };
+
+
+
+
 
     // follow = true
 
-    // Moving to normal workspace
+    // Moving from a normal workspace to a normal workspace
 
     // Moving a normal window into a workspace with an FS window
 
@@ -927,6 +965,14 @@ TEST_CASE(monocleFullscreenMoveFsWindowsIntoWorkspace) {
 
 
 
+    // Moving from a normal workspace to a special workspace
+
+
+    // All of the above, but to a special workspace instead
+
+
+
+
 
 
     // follow = false - same idea as all the above, but move it silently first then switch to workspace to check results
@@ -943,7 +989,7 @@ TEST_CASE(defaultHandledFsfocusInDirection) {
     OK(getFromSocket("r/eval hl.config({ general = { layout = 'dwindle' } })"));
 
     /*
-            This test serves as a test for all layouts that use deafult FS behaviour
+            This test serves as a test for all layouts that use default FS behaviour
     */
 
     Tests::spawnKitty("normal1");
