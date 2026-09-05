@@ -1,0 +1,26 @@
+name: triggerHappy - Discussion Moderation Tool
+
+on:
+  discussion:
+    types: [created]
+  discussion_comment:
+    types: [created]
+
+permissions:
+  discussions: write
+  contents: write
+
+jobs:
+  moderate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: erstarr/triggerHappy@v0.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          config_path:  .github/discussion_moderator/config.yml
+          banned_path:  .github/discussion_moderator/banned.yml
+          strikes_path:    .github/discussion_moderator/strikes.yml
+
+          strikes_to_ban:  5
+          auto_close_regex: "FILLER FILLER FILLER"          
+          strike_per_nonFormat: True
