@@ -22,6 +22,6 @@ jobs:
           strikes_path: .github/discussion_moderator/strikes.yml
 
           strikes_to_ban:  5
-          auto_close_regex: "FILLER FILLER FILLER"      
+          auto_close_regex: "(?s).*### I acknowledge that:\n\n- \[[xX]\][^\n]*\n- \[[xX]\][^\n]*\n- \[[xX]\][^\n]*.*"      
           auto_close_categories: "Bugs - CMake / Meson / Nix, Bugs - Config, Bugs - Crashes, Bugs - DRM, Bugs - Input, Bugs - IPC / Plugins, Bugs - Layout, Bugs - Other, Bugs - Performance, Bugs - Renderer, Bugs - Window management, Bugs - XWayland, Feature requests - Config, Feature requests - Layouts, Feature requests - Other, Feature requests - Protocols / Integrations, Feature requests - Renderer, Feature requests - Window management"
           strike_per_nonFormat: True
