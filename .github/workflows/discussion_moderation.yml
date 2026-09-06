@@ -16,7 +16,8 @@ jobs:
     steps:
       - uses: erstarr/TriggerHappy@v0.1
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # github_token: ${{ secrets.CROSS_REPO_TOKEN }} ---> TODO: point this at hypr's .github repo
+          storage_repo: your_org/yourRepo
           config_path:  .github/discussion_moderator/config.yml
           banned_path:  .github/discussion_moderator/banned.yml
           strikes_path: .github/discussion_moderator/strikes.yml
