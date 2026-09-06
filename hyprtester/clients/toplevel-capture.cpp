@@ -90,8 +90,7 @@ static bool bindGlobals(SState& state) {
 
         } else if (IFACE == "hyprland_toplevel_export_manager_v1") {
             state.exportMgr = makeShared<CCHyprlandToplevelExportManagerV1>(
-                rc<wl_proxy*>(wl_registry_bind(rc<wl_registry*>(r->resource()), name,
-                              &hyprland_toplevel_export_manager_v1_interface, std::min(ver, 2U))));
+                rc<wl_proxy*>(wl_registry_bind(rc<wl_registry*>(r->resource()), name, &hyprland_toplevel_export_manager_v1_interface, std::min(ver, 2U))));
         }
     });
     state.registry->setGlobalRemove([](CCWlRegistry*, uint32_t) {});
@@ -139,9 +138,8 @@ static bool createCaptureBuffer(SState& state) {
 }
 
 static bool requestCapture(SState& state) {
-    state.frame = makeShared<CCHyprlandToplevelExportFrameV1>(
-        state.exportMgr->sendCaptureToplevelWithWlrToplevelHandle(
-            0 /*overlay_cursor*/, rc<wl_proxy*>(state.target->resource())));
+    state.frame =
+        makeShared<CCHyprlandToplevelExportFrameV1>(state.exportMgr->sendCaptureToplevelWithWlrToplevelHandle(0 /*overlay_cursor*/, rc<wl_proxy*>(state.target->resource())));
 
     if (!state.frame || !state.frame->resource())
         return false;
