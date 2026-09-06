@@ -25,33 +25,29 @@ using namespace Hyprutils::Memory;
 // Reconstruct the wire interface from the protocol XML and use the C API directly.
 
 static const struct wl_message s_frameMethods[] = {
-    {"copy",    "oi", nullptr}, // opcode 0
-    {"destroy", "",   nullptr}, // opcode 1
+    {"copy", "oi", nullptr},  // opcode 0
+    {"destroy", "", nullptr}, // opcode 1
 };
 static const struct wl_message s_frameEvents[] = {
-    {"buffer",       "uuuu", nullptr}, // opcode 0
-    {"damage",       "uuuu", nullptr}, // opcode 1
-    {"flags",        "u",    nullptr}, // opcode 2
-    {"ready",        "uuu",  nullptr}, // opcode 3
-    {"failed",       "",     nullptr}, // opcode 4
-    {"linux_dmabuf", "uuu",  nullptr}, // opcode 5
-    {"buffer_done",  "",     nullptr}, // opcode 6
+    {"buffer", "uuuu", nullptr},      // opcode 0
+    {"damage", "uuuu", nullptr},      // opcode 1
+    {"flags", "u", nullptr},          // opcode 2
+    {"ready", "uuu", nullptr},        // opcode 3
+    {"failed", "", nullptr},          // opcode 4
+    {"linux_dmabuf", "uuu", nullptr}, // opcode 5
+    {"buffer_done", "", nullptr},     // opcode 6
 };
 static const struct wl_interface s_exportFrameIface = {
-    "hyprland_toplevel_export_frame_v1", 2,
-    2, s_frameMethods,
-    7, s_frameEvents,
+    "hyprland_toplevel_export_frame_v1", 2, 2, s_frameMethods, 7, s_frameEvents,
 };
 
 static const struct wl_message s_mgrMethods[] = {
-    {"capture_toplevel",                          "niu",  nullptr}, // opcode 0
-    {"destroy",                                   "",     nullptr}, // opcode 1
+    {"capture_toplevel", "niu", nullptr},                           // opcode 0
+    {"destroy", "", nullptr},                                       // opcode 1
     {"capture_toplevel_with_wlr_toplevel_handle", "2nio", nullptr}, // opcode 2
 };
 static const struct wl_interface s_exportMgrIface = {
-    "hyprland_toplevel_export_manager_v1", 2,
-    3, s_mgrMethods,
-    0, nullptr,
+    "hyprland_toplevel_export_manager_v1", 2, 3, s_mgrMethods, 0, nullptr,
 };
 
 // ── State ─────────────────────────────────────────────────────────────────────
@@ -62,28 +58,28 @@ struct SHandle {
 };
 
 struct SState {
-    wl_display*                                    display    = nullptr;
+    wl_display*                                    display = nullptr;
     CSharedPointer<CCWlRegistry>                   registry;
     CSharedPointer<CCWlShm>                        shm;
     CSharedPointer<CCZwlrForeignToplevelManagerV1> toplevelMgr;
-    wl_proxy*                                      exportMgr  = nullptr;
+    wl_proxy*                                      exportMgr = nullptr;
 
     std::vector<CSharedPointer<SHandle>>           handles;
     CSharedPointer<CCZwlrForeignToplevelHandleV1>  target;
     std::string                                    targetAppID;
 
-    wl_proxy*                   frame    = nullptr;
-    CSharedPointer<CCWlShmPool> pool;
-    CSharedPointer<CCWlBuffer>  buffer;
-    int                         bufferFD = -1;
+    wl_proxy*                                      frame = nullptr;
+    CSharedPointer<CCWlShmPool>                    pool;
+    CSharedPointer<CCWlBuffer>                     buffer;
+    int                                            bufferFD = -1;
 
-    uint32_t bufferFormat = 0;
-    uint32_t bufferWidth  = 0;
-    uint32_t bufferHeight = 0;
-    uint32_t bufferStride = 0;
+    uint32_t                                       bufferFormat = 0;
+    uint32_t                                       bufferWidth  = 0;
+    uint32_t                                       bufferHeight = 0;
+    uint32_t                                       bufferStride = 0;
 
-    bool frameReceived = false;
-    bool shouldExit    = false;
+    bool                                           frameReceived = false;
+    bool                                           shouldExit    = false;
 };
 
 static bool createCaptureBuffer(SState&);
@@ -91,7 +87,7 @@ static bool createCaptureBuffer(SState&);
 // ── Frame event callbacks ─────────────────────────────────────────────────────
 
 static void onFrameBuffer(void* d, wl_proxy*, uint32_t fmt, uint32_t w, uint32_t h, uint32_t stride) {
-    auto& st      = *static_cast<SState*>(d);
+    auto& st        = *static_cast<SState*>(d);
     st.bufferFormat = fmt;
     st.bufferWidth  = w;
     st.bufferHeight = h;
@@ -100,7 +96,7 @@ static void onFrameBuffer(void* d, wl_proxy*, uint32_t fmt, uint32_t w, uint32_t
 static void onFrameDamage(void*, wl_proxy*, uint32_t, uint32_t, uint32_t, uint32_t) {}
 static void onFrameFlags(void*, wl_proxy*, uint32_t) {}
 static void onFrameReady(void* d, wl_proxy*, uint32_t, uint32_t, uint32_t) {
-    auto& st = *static_cast<SState*>(d);
+    auto& st         = *static_cast<SState*>(d);
     st.frameReceived = true;
     st.shouldExit    = true;
 }
@@ -116,8 +112,7 @@ static void onFrameBufferDone(void* d, wl_proxy*) {
         st.shouldExit = true;
         return;
     }
-    wl_proxy_marshal_flags(st.frame, 0 /*copy*/, nullptr, wl_proxy_get_version(st.frame), 0,
-                           rc<wl_proxy*>(st.buffer->resource()), (int32_t)1 /*ignore_damage*/);
+    wl_proxy_marshal_flags(st.frame, 0 /*copy*/, nullptr, wl_proxy_get_version(st.frame), 0, rc<wl_proxy*>(st.buffer->resource()), (int32_t)1 /*ignore_damage*/);
 }
 
 struct SFrameListener {
@@ -130,8 +125,7 @@ struct SFrameListener {
     void (*buffer_done)(void*, wl_proxy*);
 };
 static SFrameListener s_frameListener = {
-    onFrameBuffer, onFrameDamage,     onFrameFlags,       onFrameReady,
-    onFrameFailed, onFrameLinuxDmabuf, onFrameBufferDone,
+    onFrameBuffer, onFrameDamage, onFrameFlags, onFrameReady, onFrameFailed, onFrameLinuxDmabuf, onFrameBufferDone,
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -143,18 +137,16 @@ static bool bindGlobals(SState& state) {
         const std::string_view IFACE = iface;
 
         if (IFACE == "wl_shm") {
-            state.shm = makeShared<CCWlShm>(rc<wl_proxy*>(
-                wl_registry_bind(rc<wl_registry*>(r->resource()), name, &wl_shm_interface, 1)));
+            state.shm = makeShared<CCWlShm>(rc<wl_proxy*>(wl_registry_bind(rc<wl_registry*>(r->resource()), name, &wl_shm_interface, 1)));
 
         } else if (IFACE == "zwlr_foreign_toplevel_manager_v1") {
-            state.toplevelMgr = makeShared<CCZwlrForeignToplevelManagerV1>(rc<wl_proxy*>(
-                wl_registry_bind(rc<wl_registry*>(r->resource()), name,
-                                 &zwlr_foreign_toplevel_manager_v1_interface, std::min(ver, 3U))));
+            state.toplevelMgr = makeShared<CCZwlrForeignToplevelManagerV1>(
+                rc<wl_proxy*>(wl_registry_bind(rc<wl_registry*>(r->resource()), name, &zwlr_foreign_toplevel_manager_v1_interface, std::min(ver, 3U))));
 
             state.toplevelMgr->setToplevel([&state](CCZwlrForeignToplevelManagerV1*, wl_proxy* res) {
                 const auto H = makeShared<SHandle>();
                 H->resource  = makeShared<CCZwlrForeignToplevelHandleV1>(res);
-                auto*        h = H.get();
+                auto* h      = H.get();
                 H->resource->setAppId([h](CCZwlrForeignToplevelHandleV1*, const char* id) { h->appID = id; });
                 H->resource->setDone([&state, h](CCZwlrForeignToplevelHandleV1*) {
                     if (h->appID == state.targetAppID)
@@ -169,8 +161,7 @@ static bool bindGlobals(SState& state) {
             state.toplevelMgr->setFinished([](CCZwlrForeignToplevelManagerV1*) {});
 
         } else if (IFACE == "hyprland_toplevel_export_manager_v1") {
-            state.exportMgr = rc<wl_proxy*>(
-                wl_registry_bind(rc<wl_registry*>(r->resource()), name, &s_exportMgrIface, std::min(ver, 2U)));
+            state.exportMgr = rc<wl_proxy*>(wl_registry_bind(rc<wl_registry*>(r->resource()), name, &s_exportMgrIface, std::min(ver, 2U)));
         }
     });
     state.registry->setGlobalRemove([](CCWlRegistry*, uint32_t) {});
@@ -198,8 +189,14 @@ static bool createCaptureBuffer(SState& state) {
     const int         FD   = shm_open(NAME.c_str(), O_RDWR | O_CREAT | O_EXCL, 0600);
     if (FD < 0)
         return false;
-    if (shm_unlink(NAME.c_str()) < 0) { close(FD); return false; }
-    if (ftruncate(FD, sc<off_t>(SIZE)) < 0) { close(FD); return false; }
+    if (shm_unlink(NAME.c_str()) < 0) {
+        close(FD);
+        return false;
+    }
+    if (ftruncate(FD, sc<off_t>(SIZE)) < 0) {
+        close(FD);
+        return false;
+    }
 
     state.bufferFD = FD;
     state.pool     = makeShared<CCWlShmPool>(state.shm->sendCreatePool(FD, sc<int32_t>(SIZE)));
@@ -207,24 +204,21 @@ static bool createCaptureBuffer(SState& state) {
         return false;
 
     state.buffer = makeShared<CCWlBuffer>(
-        state.pool->sendCreateBuffer(0, sc<int32_t>(state.bufferWidth), sc<int32_t>(state.bufferHeight),
-                                     sc<int32_t>(state.bufferStride), state.bufferFormat));
+        state.pool->sendCreateBuffer(0, sc<int32_t>(state.bufferWidth), sc<int32_t>(state.bufferHeight), sc<int32_t>(state.bufferStride), state.bufferFormat));
     return state.buffer && state.buffer->resource();
 }
 
 static bool requestCapture(SState& state) {
     // "2nio": version-gated, new_id (frame), int32 (overlay_cursor), object (wlr handle)
-    state.frame = wl_proxy_marshal_flags(
-        state.exportMgr, 2 /*capture_toplevel_with_wlr_toplevel_handle*/,
-        &s_exportFrameIface, wl_proxy_get_version(state.exportMgr), 0,
-        nullptr,                                    // new_id placeholder
-        (int32_t)0,                                 // overlay_cursor
-        rc<wl_proxy*>(state.target->resource()));   // wlr handle
+    state.frame = wl_proxy_marshal_flags(state.exportMgr, 2 /*capture_toplevel_with_wlr_toplevel_handle*/, &s_exportFrameIface, wl_proxy_get_version(state.exportMgr), 0,
+                                         nullptr,                                  // new_id placeholder
+                                         (int32_t)0,                               // overlay_cursor
+                                         rc<wl_proxy*>(state.target->resource())); // wlr handle
 
     if (!state.frame)
         return false;
 
-    if (wl_proxy_add_listener(state.frame, reinterpret_cast<void(**)(void)>(&s_frameListener), &state) < 0) {
+    if (wl_proxy_add_listener(state.frame, reinterpret_cast<void (**)(void)>(&s_frameListener), &state) < 0) {
         wl_proxy_destroy(state.frame);
         state.frame = nullptr;
         return false;
@@ -253,8 +247,8 @@ static bool dispatchUntilDone(SState& state, std::chrono::steady_clock::time_poi
         }
 
         const auto REMAINING_MS = std::chrono::duration_cast<std::chrono::milliseconds>(deadline - NOW).count();
-        pollfd     pfd           = {.fd = wl_display_get_fd(state.display), .events = POLLIN, .revents = 0};
-        const int  POLL_RET      = poll(&pfd, 1, sc<int>(REMAINING_MS));
+        pollfd     pfd          = {.fd = wl_display_get_fd(state.display), .events = POLLIN, .revents = 0};
+        const int  POLL_RET     = poll(&pfd, 1, sc<int>(REMAINING_MS));
 
         if (POLL_RET <= 0) {
             wl_display_cancel_read(state.display);
@@ -277,8 +271,7 @@ static void disconnect(SState& state) {
         return;
 
     if (state.frame) {
-        wl_proxy_marshal_flags(state.frame, 1 /*destroy*/, nullptr,
-                               wl_proxy_get_version(state.frame), WL_MARSHAL_FLAG_DESTROY);
+        wl_proxy_marshal_flags(state.frame, 1 /*destroy*/, nullptr, wl_proxy_get_version(state.frame), WL_MARSHAL_FLAG_DESTROY);
         state.frame = nullptr;
     }
     state.buffer.reset();
@@ -287,8 +280,7 @@ static void disconnect(SState& state) {
     state.handles.clear();
     state.toplevelMgr.reset();
     if (state.exportMgr) {
-        wl_proxy_marshal_flags(state.exportMgr, 1 /*destroy*/, nullptr,
-                               wl_proxy_get_version(state.exportMgr), WL_MARSHAL_FLAG_DESTROY);
+        wl_proxy_marshal_flags(state.exportMgr, 1 /*destroy*/, nullptr, wl_proxy_get_version(state.exportMgr), WL_MARSHAL_FLAG_DESTROY);
         state.exportMgr = nullptr;
     }
     state.shm.reset();

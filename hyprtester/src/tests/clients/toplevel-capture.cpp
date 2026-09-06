@@ -32,9 +32,9 @@ static bool runToplevelCapture(const std::string& appID) {
 TEST_CASE(windowShareCaptureProducesFrame) {
     constexpr auto APP_ID = "hyprtester-toplevel-capture";
 
-    CScopeGuard guard = {[&]() { Tests::killAllWindows(); }};
+    CScopeGuard    guard = {[&]() { Tests::killAllWindows(); }};
 
-    auto kitty = Tests::spawnKitty(APP_ID);
+    auto           kitty = Tests::spawnKitty(APP_ID);
     if (!kitty)
         FAIL_TEST("Could not spawn kitty with class: {}", APP_ID);
 
