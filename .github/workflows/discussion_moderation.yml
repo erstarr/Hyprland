@@ -19,8 +19,8 @@ jobs:
           # github_token: ${{ secrets.CROSS_REPO_TOKEN }} ---> TODO: point this at hypr's .github repo
           storage_repo: your_org/yourRepo
           config_path:  discussion_moderator/config.yml
-          banned_path:  /discussion_moderator/banned.yml
-          strikes_path: /discussion_moderator/strikes.yml
+          banned_path:  discussion_moderator/banned.yml
+          strikes_path: discussion_moderator/strikes.yml
 
           strikes_to_ban:  5
           auto_close_regex: "(?s).*### I acknowledge that:\n\n- \[[xX]\][^\n]*\n- \[[xX]\][^\n]*\n- \[[xX]\][^\n]*.*"      
