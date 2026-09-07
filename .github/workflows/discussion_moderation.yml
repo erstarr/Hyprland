@@ -17,7 +17,7 @@ jobs:
       - uses: erstarr/TriggerHappy@v0.1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          storage_token: ${{ secrets.CROSS_REPO_TOKEN || secrets.GITHUB_TOKEN }}
+          storage_token: ${{ secrets.CROSS_REPO_TOKEN }}
           storage_repo: your_org/yourRepo
           config_path:  discussion_moderator/config.yml
           banned_path:  discussion_moderator/banned.yml
